@@ -8,10 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 //import { axios } from 'axios'
 //var axios = require('axios')
 const axios = require('axios');
+const walk_to_pay_models_1 = __importDefault(require("../models/walk-to-pay.models"));
+const TokenCardCredit = __importStar(require("../entity/tokenCardCredit"));
 var urlCard = 'http://sandbox.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
 var urlCreateTransaction = 'http://sandbox.wompi.co/v1/transactions'; // Url card prueba  Transaccion
 var urlGetTransaction = 'http://sandbox.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
@@ -40,6 +52,8 @@ class WalkToPayController {
     createTransaction(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Esta es la response: ", req.body);
+            TokenCardCredit.name = req.body.name;
+            console.log("tokenCardCredit: ", TokenCardCredit);
             const headers = {
                 'Content-Type': 'application/json',
                 'Authorization': "Bearer " + getTokenTest
@@ -55,30 +69,8 @@ class WalkToPayController {
                 var response = yield axios.post(urlCard, tokenCard, {
                     headers: headers
                 });
-                let Cartdata = {
-                    "payment_method_type": "CARD",
-                    "payment_method": {
-                        "type": "CARD",
-                        "installments": 2,
-                        "token": response.data.data.id // Token de la tarjeta de crédito
-                    },
-                    // Otros campos de la transacción a crear...
-                    "amount_in_cents": 2500000,
-                    "currency": "COP",
-                    "name": "Cachucha",
-                    "customer_email": "josemase55@gmail.com",
-                    "reference": "ggg55sdfs",
-                    "description": "Color negro, tamaño, único",
-                    "expires_at": "2018-09-20T05:00:00.000Z",
-                    "image_url": "https://bit.ly/2MBcBGH",
-                    "redirect_url": "https://www.kiero.co/",
-                    "single_use": false,
-                    "sku": "WBXCH1",
-                    "collect_shipping": false
-                };
-                var response = yield axios.post(urlCreateTransaction, Cartdata, {
-                    headers: headers
-                });
+                console.log(response.data.data.id);
+                walk_to_pay_models_1.default.createTransactionCard(response.data.data);
                 console.log("Ok", response.data.data);
             }
             catch (err) {
@@ -136,5 +128,33 @@ numberCredit: '1111 1111 1111 1111 ',
   paymentMethod: '1'
 
 
+
+*/
+/*
+ let Cartdata={
+            "payment_method_type": "CARD",
+            "payment_method": {
+              "type": "CARD",
+              "installments": 2, // Número de cuotas
+              "token": response.data.data.id // Token de la tarjeta de crédito
+            },
+            // Otros campos de la transacción a crear...
+            
+            "amount_in_cents": 2500000,
+            "currency": "COP",
+            "name": "Cachucha",
+            "customer_email":"josemase55@gmail.com",
+            "reference":"ggg55sdfs",
+            "description": "Color negro, tamaño, único",
+            "expires_at": "2018-09-20T05:00:00.000Z",
+            "image_url": "https://bit.ly/2MBcBGH",
+            "redirect_url": "https://www.kiero.co/",
+            "single_use": false,
+            "sku": "WBXCH1",
+            "collect_shipping": false
+        }
+        var response = await axios.post(urlCreateTransaction, Cartdata,{
+            headers: headers
+        })
 
 */ 

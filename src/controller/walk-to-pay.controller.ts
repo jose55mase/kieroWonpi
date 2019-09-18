@@ -4,6 +4,9 @@ import bodyParser = require('body-parser');
 //var axios = require('axios')
 const axios = require('axios')
 
+import  inserWalkToPay  from '../models/walk-to-pay.models'
+import   * as TokenCardCredit  from '../entity/tokenCardCredit'
+
 
 var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
 var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
@@ -18,6 +21,8 @@ var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token d
 
  
 class WalkToPayController{  
+
+  
   
   // Toma la tansaccion
   public async getTransaction(){
@@ -38,61 +43,39 @@ class WalkToPayController{
   
   // Create transaccion
   public async createTransaction(req: Request, res: Response):Promise<any>{
+    
     console.log("Esta es la response: ", req.body)
+    TokenCardCredit.name = req.body.name
+    console.log("tokenCardCredit: ", TokenCardCredit)
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': "Bearer " + getTokenTest
     }
     try{
-        let tokenCard ={
-            "number": req.body.numberCreditPay, // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
-            "exp_month": req.body.month, // Mes de expiración (como string de 2 dígitos)
-            "exp_year": req.body.year, // Año de expiración (como string de 2 dígitos)
-            "cvc": req.body.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
-            "card_holder": req.body.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)
+        let tokenCard={
+          "number": req.body.numberCreditPay, // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
+          "exp_month": req.body.month, // Mes de expiración (como string de 2 dígitos)
+          "exp_year": req.body.year, // Año de expiración (como string de 2 dígitos)
+          "cvc": req.body.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
+          "card_holder": req.body.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)
         }           
         var response = await axios.post(urlCard, tokenCard,{
             headers: headers
         })
-        let Cartdata={              
-            "payment_method_type": "CARD",
-            "payment_method": {
-              "type": "CARD",
-              "installments": 2, // Número de cuotas
-              "token": response.data.data.id // Token de la tarjeta de crédito
-            },
-            // Otros campos de la transacción a crear...
-            
-            "amount_in_cents": 2500000,
-            "currency": "COP",
-            "name": "Cachucha",
-            "customer_email":"josemase55@gmail.com",
-            "reference":"ggg55sdfs",
-            "description": "Color negro, tamaño, único",
-            "expires_at": "2018-09-20T05:00:00.000Z",
-            "image_url": "https://bit.ly/2MBcBGH",
-            "redirect_url": "https://www.kiero.co/",
-            "single_use": false,
-            "sku": "WBXCH1",
-            "collect_shipping": false                 
-        }
-        var response = await axios.post(urlCreateTransaction, Cartdata,{
-            headers: headers
-        })
+        console.log(response.data.data.id)
+       
+        inserWalkToPay.createTransactionCard(response.data.data);
         console.log("Ok", response.data.data)
 
     }catch(err){
         console.log("ERROR",err.response.data.error)
     }
-
-
-
-
     res.json({ message: 'New create event'});
   }
 }
 const walkToPayController = new WalkToPayController;
 export default walkToPayController;
+
 
 
 /*
@@ -143,5 +126,35 @@ numberCredit: '1111 1111 1111 1111 ',
   paymentMethod: '1'
 
 
+
+*/
+
+
+/*
+ let Cartdata={              
+            "payment_method_type": "CARD",
+            "payment_method": {
+              "type": "CARD",
+              "installments": 2, // Número de cuotas
+              "token": response.data.data.id // Token de la tarjeta de crédito
+            },
+            // Otros campos de la transacción a crear...
+            
+            "amount_in_cents": 2500000,
+            "currency": "COP",
+            "name": "Cachucha",
+            "customer_email":"josemase55@gmail.com",
+            "reference":"ggg55sdfs",
+            "description": "Color negro, tamaño, único",
+            "expires_at": "2018-09-20T05:00:00.000Z",
+            "image_url": "https://bit.ly/2MBcBGH",
+            "redirect_url": "https://www.kiero.co/",
+            "single_use": false,
+            "sku": "WBXCH1",
+            "collect_shipping": false                 
+        }
+        var response = await axios.post(urlCreateTransaction, Cartdata,{
+            headers: headers
+        })
 
 */
