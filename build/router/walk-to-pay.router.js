@@ -12,8 +12,8 @@ class WalkToPay {
         this.config();
     }
     config() {
-        this.router.get('/kk', walk_to_pay_controller_1.default.startWompi);
-        this.router.get('/', walk_to_pay_controller_1.default.createPay);
+        this.router.get('/getTransaction', walk_to_pay_controller_1.default.getTransaction);
+        this.router.post('/createTransaction', walk_to_pay_controller_1.default.createTransaction);
     }
 }
 exports.default = new WalkToPay().router;

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import  path from 'path'
-import WalkToPayController from '../controller/walk-to-pay.controller'
+import walkToPayController from '../controller/walk-to-pay.controller'
  
  
 //import {  } from './templates'
@@ -12,8 +12,8 @@ class WalkToPay{
          this.config();
     }
     config():void{
-         this.router.get('/kk',WalkToPayController.startWompi)
-         this.router.get('/',WalkToPayController.createPay)
+         this.router.get('/getTransaction',walkToPayController.getTransaction)
+         this.router.post('/createTransaction',walkToPayController.createTransaction)
     }
 }
  

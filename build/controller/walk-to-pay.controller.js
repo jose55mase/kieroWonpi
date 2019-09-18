@@ -14,31 +14,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios = require('axios');
 var urlCard = 'http://sandbox.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
 var urlCreateTransaction = 'http://sandbox.wompi.co/v1/transactions'; // Url card prueba  Transaccion
+var urlGetTransaction = 'http://sandbox.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
 var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0'; // Token de prueba 
 var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'; // Token de produccion   
 class WalkToPayController {
-    startWompi() {
-        let template = `
-       <!DOCTYPE html>
-       <html lang="en">
- 
-       </html>
-       `;
-        return template;
-    }
-    createPay() {
+    // Toma la tansaccion
+    getTransaction() {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = {
                 'Content-Type': 'application/json',
                 'Authorization': "Bearer " + getTokenTest
             };
             try {
+                var response = yield axios.get(urlGetTransaction + '1703-1568727762-39101', {
+                    headers: headers
+                });
+                console.log("Ok", response.data.data);
+            }
+            catch (err) {
+                console.log("ERROR", err.response.data.error);
+            }
+        });
+    }
+    // Create transaccion
+    createTransaction(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("Esta es la response: ", req.body);
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + getTokenTest
+            };
+            try {
                 let tokenCard = {
-                    "number": "4242424242424242",
-                    "exp_month": "06",
-                    "exp_year": "29",
-                    "cvc": "123",
-                    "card_holder": "Pedro Pérez" // Nombre del tarjeta habiente (string de mínimo 5 caracteres)
+                    "number": req.body.numberCreditPay,
+                    "exp_month": req.body.month,
+                    "exp_year": req.body.year,
+                    "cvc": req.body.cvv,
+                    "card_holder": req.body.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)
                 };
                 var response = yield axios.post(urlCard, tokenCard, {
                     headers: headers
@@ -55,11 +67,11 @@ class WalkToPayController {
                     "currency": "COP",
                     "name": "Cachucha",
                     "customer_email": "josemase55@gmail.com",
-                    "reference": "4546645gf",
+                    "reference": "ggg55sdfs",
                     "description": "Color negro, tamaño, único",
                     "expires_at": "2018-09-20T05:00:00.000Z",
                     "image_url": "https://bit.ly/2MBcBGH",
-                    "redirect_url": "https://www.mitienda.co",
+                    "redirect_url": "https://www.kiero.co/",
                     "single_use": false,
                     "sku": "WBXCH1",
                     "collect_shipping": false
@@ -72,10 +84,12 @@ class WalkToPayController {
             catch (err) {
                 console.log("ERROR", err.response.data.error);
             }
+            res.json({ message: 'New create event' });
         });
     }
 }
-exports.default = new WalkToPayController();
+const walkToPayController = new WalkToPayController;
+exports.default = walkToPayController;
 /*
 
 Ok {
@@ -107,6 +121,20 @@ Ok {
   customer_data: null,
   bill_id: null
 }
+
+
+*/
+/*
+numberCredit: '1111 1111 1111 1111 ',
+  name: '7777 undefined77',
+  numberDoc: '2222222222',
+  typeDoc: 'NIT',
+  month: '02',
+  year: 2020,
+  cvv: '1233',
+  quotas: 2,
+  paymentMethod: '1'
+
 
 
 */ 

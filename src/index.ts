@@ -1,5 +1,8 @@
 import express, {Application} from 'express';
 import WalkToPay from './router/walk-to-pay.router';
+import morgan from 'morgan';
+import cors from 'cors';
+
  
 class Server{
   
@@ -14,10 +17,15 @@ class Server{
  
    config():void{
        this.app.set('port',  process.env.PORT ||  3002)
+
+       this.app.use(morgan('dev'));
+       this.app.use(cors());
+       this.app.use(express.json());
+       this.app.use(express.urlencoded({extended: false}));
    }
  
    router():void{
-       this.app.use(WalkToPay);
+       this.app.use(WalkToPay);       
    }
  
    start():void{
