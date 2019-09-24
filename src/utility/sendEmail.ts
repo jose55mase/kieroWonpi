@@ -26,7 +26,7 @@ class SendEmail{
             from: 'yuli.espitia2@kiero.co',
             to: JSON.stringify(emails),
             subject: 'Kiero | Vendiste un producto!',
-            html: data
+            html: template.sendEmail(data)
         };
         const result = await transport.sendMail(mailOptions);        
         return result;
@@ -35,6 +35,5 @@ class SendEmail{
 
 
 }
-var objet = ["josemase55@gmail.com"]
-var sendMail = new SendEmail;
-sendMail.sendMail(objet,template.sendEmail('jose'))
+const sendEmail = new SendEmail();
+export default sendEmail;
