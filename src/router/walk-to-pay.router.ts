@@ -13,8 +13,9 @@ class WalkToPay{
     }
     config():void{
          this.router.get('/getTransaction',walkToPayController.getTransaction)
-         this.router.post('/createTransaction',walkToPayController.createTransactionBack)
          this.router.get('/getBackPSEWompi',walkToPayController.getBackPSEWompi)
+
+         this.router.post('/createTransaction',walkToPayController.createTransactionBack)
          this.router.post('/createTransactionNequi',walkToPayController.createTransactionNequi)
          this.router.post('/createTransactionPSE',walkToPayController.createTransactionPSE)
     }
