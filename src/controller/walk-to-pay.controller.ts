@@ -9,8 +9,11 @@ import  {TokenCardCredit}  from '../entity/tokenCardCredit'
 
 
 var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
+var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKEN
+
 var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
 var urlGetTransaction='http://sandbox.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
+var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Trare bancos
 
 
         
@@ -21,8 +24,49 @@ var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token d
 
  
 class WalkToPayController{  
-  // Toma la tansaccion
-  public async getTransaction(){
+ 
+  public async createTransactionNequi(req: Request, res: Response){
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': "Bearer " + getTokenTest
+    }
+    try{          
+      let tokenNequi={
+        payment_method_type: 'NEQUI',
+        phone_number: '3991111111', // Numero de celular
+        name: 'jose luis', // Nombre usuario
+      }
+      console.log(tokenNequi)
+      var responseNequiToken = await axios.post(urlNequi, tokenNequi,{
+        headers: headers
+      })
+      console.log(responseNequiToken)
+      
+
+    }catch(err){
+      console.log("Error",err.response.data.error)
+    }  
+  }
+ 
+  // Toma la tansaccion  
+  public async getBackPSEWompi(req: Request, res: Response){
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': "Bearer " + getTokenTest
+    }
+    try{          
+      var response = await axios.get(urlGetBackPSE,{
+          headers: headers
+      })
+      res.json(response.data.data)
+      console.log("Ok", response.data.data)
+    }catch(err){
+        console.log("ERROR",err)
+    }    
+   
+  }  
+  
+  public async getTransaction(req: Request, res: Response){
       const headers = {
         'Content-Type': 'application/json',
         'Authorization': "Bearer " + getTokenTest
@@ -31,51 +75,54 @@ class WalkToPayController{
         var response = await axios.get(urlGetTransaction+'1703-1568727762-39101',{
             headers: headers
         })
+        
         console.log("Ok", response.data.data)
       }catch(err){
           console.log("ERROR",err.response.data.error)
       }
+      res.json({ message: 'Error'})
+      
    }  
   
   // Create transaccion
-  public async createTransaction(req: Request, res: Response):Promise<any>{
+  public async createTransactionBack(req: Request, res: Response):Promise<any>{
     console.log('Data',req.body)
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': "Bearer " + getTokenTest
     }
     try{
-        let tokenCard={
-          "number": req.body.numberCreditChange, // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
-          "exp_month": req.body.month, // Mes de expiración (como string de 2 dígitos)
-          "exp_year": req.body.year, // Año de expiración (como string de 2 dígitos)
-          "cvc": req.body.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
-          "card_holder": req.body.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
-        }                  
-        var responseCardToken = await axios.post(urlCard, tokenCard,{
-            headers: headers
-        })
-        var cartdata={              
-          "payment_method_type": "CARD",
-          "payment_method": {
-            "type": "CARD",
-            "installments": 2, // Número de cuotas
-            "token": responseCardToken.data.data.id // Token de la tarjeta de crédito
-          },
-          // Otros campos de la transacción a crear...
-          
-          "amount_in_cents": 2500000,
-          "currency": "COP",
-          "name": "Cachucha",
-          "customer_email":"josemase55@gmail.com",
-          "reference":responseCardToken.data.data.id,
-          "description": "Color negro, tamaño, único",
-          "expires_at": "2018-09-20T05:00:00.000Z",
-          "image_url": "https://bit.ly/2MBcBGH",
-          "redirect_url": "https://www.kiero.co/",
-          "single_use": false,
-          "sku": "WBXCH1",
-          "collect_shipping": false                 
+      let tokenCard={
+        "number": '4242424242424242', // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
+        "exp_month": req.body.dataCardCredit.month, // Mes de expiración (como string de 2 dígitos)
+        "exp_year": req.body.dataCardCredit.year.toString(), // Año de expiración (como string de 2 dígitos)
+        "cvc": req.body.dataCardCredit.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
+        "card_holder": req.body.dataCardCredit.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
+      }                  
+      var responseCardToken = await axios.post(urlCard, tokenCard,{
+          headers: headers
+      })  
+      var cartdata={              
+        "payment_method_type": "CARD",
+        "payment_method": {
+          "type": "CARD",
+          "installments": req.body.dataCardCredit.quotas, // Número de cuotas
+          "token": responseCardToken.data.data.id // Token de la tarjeta de crédito
+        },
+        // Otros campos de la transacción a crear...
+        
+        "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+        "currency": "COP",
+        "name": req.body.product.Resultados.titulo,
+        "customer_email": req.body.dataCardCredit.email,
+        "reference": req.body.product.Resultados.id_Producto.toString(),
+        "description": req.body.product.Resultados.descripcion,
+        
+        "image_url": req.body.product.Resultados.imagenes_Producto[0],
+        "redirect_url": "https://www.kiero.co/",
+        "single_use": false,
+        
+        "collect_shipping": false                 
         }
         var responseWompi = await axios.post(urlCreateTransaction, cartdata,{
             headers: headers
@@ -85,7 +132,7 @@ class WalkToPayController{
         })
         inserWalkToPay.createTransactionCard(responseCardToken.data.data,responseWompi.data.data,cartdata,responseEstatusTransactionCard.data.data.status);         
         console.log("Ok")
-        res.json({ message: 'Ok'});
+        res.json({ message: 'Complete'});
 
     }catch(err){
         console.log("ERROR",err.response.data.error)

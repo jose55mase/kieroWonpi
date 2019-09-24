@@ -17,13 +17,56 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios = require('axios');
 const walk_to_pay_models_1 = __importDefault(require("../models/walk-to-pay.models"));
 var urlCard = 'http://sandbox.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
+var urlNequi = 'http://sandbox.wompi.co/v1/tokens/nequi'; // Url Nequi prueba  TOKEN
 var urlCreateTransaction = 'http://sandbox.wompi.co/v1/transactions'; // Url card prueba  Transaccion
 var urlGetTransaction = 'http://sandbox.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
+var urlGetBackPSE = 'http://sandbox.wompi.co/v1/pse/financial_institutions'; // Trare bancos
 var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0'; // Token de prueba 
 var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'; // Token de produccion   
 class WalkToPayController {
-    // Toma la tansaccion
-    getTransaction() {
+    createTransactionNequi(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + getTokenTest
+            };
+            try {
+                let tokenNequi = {
+                    payment_method_type: 'NEQUI',
+                    phone_number: '3991111111',
+                    name: 'jose luis',
+                };
+                console.log(tokenNequi);
+                var responseNequiToken = yield axios.post(urlNequi, tokenNequi, {
+                    headers: headers
+                });
+                console.log(responseNequiToken);
+            }
+            catch (err) {
+                console.log("Error", err.response.data.error);
+            }
+        });
+    }
+    // Toma la tansaccion  
+    getBackPSEWompi(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + getTokenTest
+            };
+            try {
+                var response = yield axios.get(urlGetBackPSE, {
+                    headers: headers
+                });
+                res.json(response.data.data);
+                console.log("Ok", response.data.data);
+            }
+            catch (err) {
+                console.log("ERROR", err);
+            }
+        });
+    }
+    getTransaction(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = {
                 'Content-Type': 'application/json',
@@ -38,10 +81,11 @@ class WalkToPayController {
             catch (err) {
                 console.log("ERROR", err.response.data.error);
             }
+            res.json({ message: 'Error' });
         });
     }
     // Create transaccion
-    createTransaction(req, res) {
+    createTransactionBack(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log('Data', req.body);
             const headers = {
@@ -50,11 +94,11 @@ class WalkToPayController {
             };
             try {
                 let tokenCard = {
-                    "number": req.body.numberCreditChange,
-                    "exp_month": req.body.month,
-                    "exp_year": req.body.year,
-                    "cvc": req.body.cvv,
-                    "card_holder": req.body.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
+                    "number": '4242424242424242',
+                    "exp_month": req.body.dataCardCredit.month,
+                    "exp_year": req.body.dataCardCredit.year.toString(),
+                    "cvc": req.body.dataCardCredit.cvv,
+                    "card_holder": req.body.dataCardCredit.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
                 };
                 var responseCardToken = yield axios.post(urlCard, tokenCard, {
                     headers: headers
@@ -63,21 +107,19 @@ class WalkToPayController {
                     "payment_method_type": "CARD",
                     "payment_method": {
                         "type": "CARD",
-                        "installments": 2,
+                        "installments": req.body.dataCardCredit.quotas,
                         "token": responseCardToken.data.data.id // Token de la tarjeta de crédito
                     },
                     // Otros campos de la transacción a crear...
-                    "amount_in_cents": 2500000,
+                    "amount_in_cents": parseInt(req.body.product.Resultados.precio),
                     "currency": "COP",
-                    "name": "Cachucha",
-                    "customer_email": "josemase55@gmail.com",
-                    "reference": responseCardToken.data.data.id,
-                    "description": "Color negro, tamaño, único",
-                    "expires_at": "2018-09-20T05:00:00.000Z",
-                    "image_url": "https://bit.ly/2MBcBGH",
+                    "name": req.body.product.Resultados.titulo,
+                    "customer_email": req.body.dataCardCredit.email,
+                    "reference": req.body.product.Resultados.id_Producto.toString(),
+                    "description": req.body.product.Resultados.descripcion,
+                    "image_url": req.body.product.Resultados.imagenes_Producto[0],
                     "redirect_url": "https://www.kiero.co/",
                     "single_use": false,
-                    "sku": "WBXCH1",
                     "collect_shipping": false
                 };
                 var responseWompi = yield axios.post(urlCreateTransaction, cartdata, {
@@ -88,7 +130,7 @@ class WalkToPayController {
                 });
                 walk_to_pay_models_1.default.createTransactionCard(responseCardToken.data.data, responseWompi.data.data, cartdata, responseEstatusTransactionCard.data.data.status);
                 console.log("Ok");
-                res.json({ message: 'Ok' });
+                res.json({ message: 'Complete' });
             }
             catch (err) {
                 console.log("ERROR", err.response.data.error);
