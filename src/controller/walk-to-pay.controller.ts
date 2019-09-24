@@ -6,7 +6,7 @@ const axios = require('axios')
 
 import  inserWalkToPay  from '../models/walk-to-pay.models'
 import  {TokenCardCredit}  from '../entity/tokenCardCredit'
-
+import sendEmail from '../utility/sendEmail'
 
 var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
 var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKEN
