@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import bodyParser = require('body-parser');
+
 //import { axios } from 'axios'
 //var axios = require('axios')
 const axios = require('axios')
@@ -13,7 +14,8 @@ var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKE
 
 var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
 var urlGetTransaction='http://sandbox.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
-var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Trare bancos
+var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Traer bancos
+var urlCreateTransactionPSE='http://sandbox.wompi.co/v1/payment_links' // Traer bancos
 
 
         
@@ -23,7 +25,50 @@ var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token d
 
 
  
-class WalkToPayController{  
+class WalkToPayController{
+
+  public async createTransactionPSE(req: Request, res: Response){
+    //console.log(req.body)
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': "Bearer " + getTokenTest
+    }
+    try{          
+      let payPSE={
+        "payment_method_type": "PSE",
+        "payment_method": {
+          "type": "PSE",
+          "user_type": req.body.dataPSE.person_type, // Tipo de persona, natural (0) o jurídica (1)
+          "user_legal_id_type": req.body.dataPSE.document_typearg, // Tipo de documento, CC o NIT
+          "user_legal_id": req.body.dataPSE.document_number, // Número de documento
+          "financial_institution_code": req.body.dataPSE.back, // Código (`code`) de la institución financiera
+          "payment_description": req.body.product.Resultados.titulo // Nombre de lo que se está pagando. Máximo 64 caracteres
+        },
+        "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+        "currency": "COP",
+        "name": req.body.product.Resultados.titulo,
+        "customer_email": req.body.dataPSE.email,
+        "reference": "saffsdfsasdfe4545", //req.body.product.Resultados.id_Producto.toString(),
+        "description": req.body.product.Resultados.descripcion,        
+        "image_url": req.body.product.Resultados.imagenes_Producto[0],
+        "redirect_url": "https://www.kiero.co/",
+        "single_use": false,
+        "collect_shipping": false                 
+        }
+        sendEmail.sendMail(req.body)
+      var responseNequi = await axios.post(urlCreateTransaction, payPSE,{headers: headers})
+      var responseEstatusTransactionPSE = await axios.get(urlGetTransaction+responseNequi.data.data.id,{headers: headers})
+      
+      console.log("Compreto")
+      res.json({ message: 'Complete'});
+
+    }catch(err){
+        console.log("ERROR",err.response.data.error.messages.payment_method)
+        res.json({ message: 'Error'});
+    }  
+  }
+
+  // CREAR TRANSACCION POR NEQUI 
  
   public async createTransactionNequi(req: Request, res: Response){
     const headers = {

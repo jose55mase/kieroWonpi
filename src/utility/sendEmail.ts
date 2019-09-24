@@ -6,30 +6,26 @@ class SendEmail{
         
     }
 
-    public async sendMail(emails:String[], data:any){ 
-        
-        //emails.push("jose es el nuevo")
-
-        
-        
+    public async sendMail(req:any[]){         
+        //emails.push("jose es el nuevo")        
+        console.log(req)
         const transport = await nodemailer.createTransport({
             service:'gmail',
             auth: {
                 user: 'yuli.espitia2@kiero.co',
                 pass: 'Clavesegura2017'
             } 
-        })        
-
-
+        }) 
 
         const mailOptions = {
             from: 'yuli.espitia2@kiero.co',
-            to: JSON.stringify(emails),
+            to: JSON.stringify("josemase55@gmail.com"),
             subject: 'Kiero | Vendiste un producto!',
-            html: template.sendEmail(data)
+            html: template.sendEmail(req)
         };
-        const result = await transport.sendMail(mailOptions);        
-        return result;
+        //const result = await transport.sendMail(mailOptions);
+               
+        return console.log("ḧola jose");
         
     }
 

@@ -16,6 +16,7 @@ class WalkToPay {
         this.router.post('/createTransaction', walk_to_pay_controller_1.default.createTransactionBack);
         this.router.get('/getBackPSEWompi', walk_to_pay_controller_1.default.getBackPSEWompi);
         this.router.post('/createTransactionNequi', walk_to_pay_controller_1.default.createTransactionNequi);
+        this.router.post('/createTransactionPSE', walk_to_pay_controller_1.default.createTransactionPSE);
     }
 }
 exports.default = new WalkToPay().router;

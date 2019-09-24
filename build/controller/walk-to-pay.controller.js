@@ -16,14 +16,58 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //var axios = require('axios')
 const axios = require('axios');
 const walk_to_pay_models_1 = __importDefault(require("../models/walk-to-pay.models"));
+const sendEmail_1 = __importDefault(require("../utility/sendEmail"));
 var urlCard = 'http://sandbox.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
 var urlNequi = 'http://sandbox.wompi.co/v1/tokens/nequi'; // Url Nequi prueba  TOKEN
 var urlCreateTransaction = 'http://sandbox.wompi.co/v1/transactions'; // Url card prueba  Transaccion
 var urlGetTransaction = 'http://sandbox.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
-var urlGetBackPSE = 'http://sandbox.wompi.co/v1/pse/financial_institutions'; // Trare bancos
+var urlGetBackPSE = 'http://sandbox.wompi.co/v1/pse/financial_institutions'; // Traer bancos
+var urlCreateTransactionPSE = 'http://sandbox.wompi.co/v1/payment_links'; // Traer bancos
 var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0'; // Token de prueba 
 var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'; // Token de produccion   
 class WalkToPayController {
+    createTransactionPSE(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //console.log(req.body)
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + getTokenTest
+            };
+            try {
+                let payPSE = {
+                    "payment_method_type": "PSE",
+                    "payment_method": {
+                        "type": "PSE",
+                        "user_type": req.body.dataPSE.person_type,
+                        "user_legal_id_type": req.body.dataPSE.document_typearg,
+                        "user_legal_id": req.body.dataPSE.document_number,
+                        "financial_institution_code": req.body.dataPSE.back,
+                        "payment_description": req.body.product.Resultados.titulo // Nombre de lo que se está pagando. Máximo 64 caracteres
+                    },
+                    "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+                    "currency": "COP",
+                    "name": req.body.product.Resultados.titulo,
+                    "customer_email": req.body.dataPSE.email,
+                    "reference": "saffsdfsasdfe4545",
+                    "description": req.body.product.Resultados.descripcion,
+                    "image_url": req.body.product.Resultados.imagenes_Producto[0],
+                    "redirect_url": "https://www.kiero.co/",
+                    "single_use": false,
+                    "collect_shipping": false
+                };
+                sendEmail_1.default.sendMail(req.body);
+                var responseNequi = yield axios.post(urlCreateTransaction, payPSE, { headers: headers });
+                var responseEstatusTransactionPSE = yield axios.get(urlGetTransaction + responseNequi.data.data.id, { headers: headers });
+                console.log("Compreto");
+                res.json({ message: 'Complete' });
+            }
+            catch (err) {
+                console.log("ERROR", err.response.data.error.messages.payment_method);
+                res.json({ message: 'Error' });
+            }
+        });
+    }
+    // CREAR TRANSACCION POR NEQUI 
     createTransactionNequi(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = {

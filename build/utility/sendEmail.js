@@ -26,9 +26,10 @@ class SendEmail {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
-    sendMail(emails, data) {
+    sendMail(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            //emails.push("jose es el nuevo")
+            //emails.push("jose es el nuevo")        
+            console.log(req);
             const transport = yield nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -38,15 +39,14 @@ class SendEmail {
             });
             const mailOptions = {
                 from: 'yuli.espitia2@kiero.co',
-                to: JSON.stringify(emails),
+                to: JSON.stringify("josemase55@gmail.com"),
                 subject: 'Kiero | Vendiste un producto!',
-                html: data
+                html: templateEmail_1.default.sendEmail(req)
             };
-            const result = yield transport.sendMail(mailOptions);
-            return result;
+            //const result = await transport.sendMail(mailOptions);
+            return console.log("ḧola jose");
         });
     }
 }
-var objet = ["josemase55@gmail.com"];
-var sendMail = new SendEmail;
-sendMail.sendMail(objet, templateEmail_1.default.sendEmail('jose'));
+const sendEmail = new SendEmail();
+exports.default = sendEmail;
