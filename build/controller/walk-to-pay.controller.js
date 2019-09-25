@@ -17,52 +17,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios = require('axios');
 const walk_to_pay_models_1 = __importDefault(require("../models/walk-to-pay.models"));
 const sendEmail_1 = __importDefault(require("../utility/sendEmail"));
-var urlCard = 'http://sandbox.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
+/* Prueba urls */
+//var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
+//var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKEN
+//var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
+//var urlGetTransaction='http://sandbox.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
+//var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Traer bancos
+//var urlCreateTransactionPSE='http://sandbox.wompi.co/v1/payment_links' // Traer bancos
+// var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0' // Token de prueba 
+/*  Produccin  urls*/
+var urlCard = 'http://production.wompi.co/v1/tokens/cards'; // Url card prueba  TOKEN
 var urlNequi = 'http://sandbox.wompi.co/v1/tokens/nequi'; // Url Nequi prueba  TOKEN
-var urlCreateTransaction = 'http://sandbox.wompi.co/v1/transactions'; // Url card prueba  Transaccion
-var urlGetTransaction = 'http://sandbox.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
-var urlGetBackPSE = 'http://sandbox.wompi.co/v1/pse/financial_institutions'; // Traer bancos
-var urlCreateTransactionPSE = 'http://sandbox.wompi.co/v1/payment_links'; // Traer bancos
-var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0'; // Token de prueba 
+var urlCreateTransaction = 'http://production.wompi.co/v1/transactions'; // Url card prueba  Transaccion
+var urlGetTransaction = 'http://production.wompi.co/v1/transactions/'; // Url card prueba  Transaccion
+var urlGetBackPSE = 'http://production.wompi.co/v1/pse/financial_institutions'; // Traer bancos
+var urlCreateTransactionPSE = 'http://production.wompi.co/v1/payment_links'; // Traer bancos
 var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'; // Token de produccion   
 class WalkToPayController {
     createTransactionPSE(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            //console.log(req.body)
             const headers = {
                 'Content-Type': 'application/json',
-                'Authorization': "Bearer " + getTokenTest
+                'Authorization': "Bearer " + getTokenProduction
             };
             try {
                 let payPSE = {
                     "payment_method_type": "PSE",
                     "payment_method": {
                         "type": "PSE",
-                        "user_type": req.body.dataPSE.person_type,
-                        "user_legal_id_type": req.body.dataPSE.document_typearg,
-                        "user_legal_id": req.body.dataPSE.document_number,
-                        "financial_institution_code": req.body.dataPSE.back,
+                        "user_type": req.body.data.person_type,
+                        "user_legal_id_type": req.body.data.document_typearg,
+                        "user_legal_id": req.body.data.document_number,
+                        "financial_institution_code": req.body.data.back,
                         "payment_description": req.body.product.Resultados.titulo // Nombre de lo que se está pagando. Máximo 64 caracteres
                     },
-                    "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+                    "amount_in_cents": parseInt(req.body.product.Resultados.precio + ('00')),
                     "currency": "COP",
                     "name": req.body.product.Resultados.titulo,
-                    "customer_email": req.body.dataPSE.email,
-                    "reference": "saffsdfsasdfe4545",
+                    "customer_email": req.body.data.email,
+                    "reference": "44445555fasdf",
                     "description": req.body.product.Resultados.descripcion,
                     "image_url": req.body.product.Resultados.imagenes_Producto[0],
                     "redirect_url": "https://www.kiero.co/",
                     "single_use": false,
                     "collect_shipping": false
                 };
-                sendEmail_1.default.sendMail(req.body);
                 var responseNequi = yield axios.post(urlCreateTransaction, payPSE, { headers: headers });
                 var responseEstatusTransactionPSE = yield axios.get(urlGetTransaction + responseNequi.data.data.id, { headers: headers });
+                walk_to_pay_models_1.default.createTransactionPSE(responseNequi.data.data, payPSE, responseEstatusTransactionPSE.data.data.status);
+                sendEmail_1.default.sendMail(req.body, responseEstatusTransactionPSE);
                 console.log("Compreto");
                 res.json({ message: 'Complete' });
             }
             catch (err) {
-                console.log("ERROR", err.response.data.error.messages.payment_method);
+                console.log("ERROR", err.response);
                 res.json({ message: 'Error' });
             }
         });
@@ -72,7 +80,7 @@ class WalkToPayController {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = {
                 'Content-Type': 'application/json',
-                'Authorization': "Bearer " + getTokenTest
+                'Authorization': "Bearer " + getTokenProduction
             };
             try {
                 let tokenNequi = {
@@ -85,64 +93,66 @@ class WalkToPayController {
                     headers: headers
                 });
                 console.log(responseNequiToken);
+                res.json({ message: 'Complete' });
             }
             catch (err) {
-                console.log("Error", err.response.data.error);
+                console.log("ERROR", err.response.data.error);
+                res.json({ message: 'Error' });
             }
         });
     }
     // Toma la tansaccion  
-    getBackPSEWompi(req, res) {
+    PostBackPSEWompi(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const headers = {
                 'Content-Type': 'application/json',
-                'Authorization': "Bearer " + getTokenTest
+                'Authorization': "Bearer " + getTokenProduction
+            };
+            try {
+                walk_to_pay_models_1.default.updateTransaction(req.body);
+                res.json({ status: 200 });
+                console.log("All GOOG");
+            }
+            catch (err) {
+                console.log("Any BAD", err);
+            }
+        });
+    }
+    // Trae los Bancos
+    getBancks(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + getTokenProduction
             };
             try {
                 var response = yield axios.get(urlGetBackPSE, {
                     headers: headers
                 });
                 res.json(response.data.data);
-                console.log("Ok", response.data.data);
+                console.log("Ok");
             }
             catch (err) {
                 console.log("ERROR", err);
             }
         });
     }
-    getTransaction(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': "Bearer " + getTokenTest
-            };
-            try {
-                var response = yield axios.get(urlGetTransaction + '1703-1568727762-39101', {
-                    headers: headers
-                });
-                console.log("Ok", response.data.data);
-            }
-            catch (err) {
-                console.log("ERROR", err.response.data.error);
-            }
-            res.json({ message: 'Error' });
-        });
-    }
     // Create transaccion
     createTransactionBack(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('Data', req.body);
+            console.log('Data', req.body.data.numberCreditChange.toString());
             const headers = {
                 'Content-Type': 'application/json',
-                'Authorization': "Bearer " + getTokenTest
+                'Authorization': "Bearer " + getTokenProduction
             };
             try {
                 let tokenCard = {
-                    "number": '4242424242424242',
-                    "exp_month": req.body.dataCardCredit.month,
-                    "exp_year": req.body.dataCardCredit.year.toString(),
-                    "cvc": req.body.dataCardCredit.cvv,
-                    "card_holder": req.body.dataCardCredit.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
+                    // '4111111111111111'
+                    "number": req.body.data.numberCreditChange.toString(),
+                    "exp_month": req.body.data.month,
+                    "exp_year": req.body.data.year.toString(),
+                    "cvc": req.body.data.cvv,
+                    "card_holder": req.body.data.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
                 };
                 var responseCardToken = yield axios.post(urlCard, tokenCard, {
                     headers: headers
@@ -151,15 +161,15 @@ class WalkToPayController {
                     "payment_method_type": "CARD",
                     "payment_method": {
                         "type": "CARD",
-                        "installments": req.body.dataCardCredit.quotas,
+                        "installments": req.body.data.quotas,
                         "token": responseCardToken.data.data.id // Token de la tarjeta de crédito
                     },
                     // Otros campos de la transacción a crear...
-                    "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+                    "amount_in_cents": parseInt(req.body.product.Resultados.precio + ('00')),
                     "currency": "COP",
                     "name": req.body.product.Resultados.titulo,
-                    "customer_email": req.body.dataCardCredit.email,
-                    "reference": req.body.product.Resultados.id_Producto.toString(),
+                    "customer_email": req.body.data.email,
+                    "reference": '454sf4544545565',
                     "description": req.body.product.Resultados.descripcion,
                     "image_url": req.body.product.Resultados.imagenes_Producto[0],
                     "redirect_url": "https://www.kiero.co/",
@@ -174,10 +184,11 @@ class WalkToPayController {
                 });
                 walk_to_pay_models_1.default.createTransactionCard(responseCardToken.data.data, responseWompi.data.data, cartdata, responseEstatusTransactionCard.data.data.status);
                 console.log("Ok");
+                sendEmail_1.default.sendMail(req.body, responseEstatusTransactionCard);
                 res.json({ message: 'Complete' });
             }
             catch (err) {
-                console.log("ERROR", err.response.data.error);
+                console.log("ERRORfasdf", err.response.data.error);
                 res.json({ message: 'Error' });
             }
         });

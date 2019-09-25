@@ -9,17 +9,31 @@ import  inserWalkToPay  from '../models/walk-to-pay.models'
 import  {TokenCardCredit}  from '../entity/tokenCardCredit'
 import sendEmail from '../utility/sendEmail'
 
-var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
+/* Prueba urls */
+
+//var urlCard='http://sandbox.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
+//var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKEN
+
+//var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
+//var urlGetTransaction='http://sandbox.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
+//var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Traer bancos
+//var urlCreateTransactionPSE='http://sandbox.wompi.co/v1/payment_links' // Traer bancos
+
+// var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0' // Token de prueba 
+
+/*  Produccin  urls*/
+
+var urlCard='http://production.wompi.co/v1/tokens/cards' // Url card prueba  TOKEN
 var urlNequi='http://sandbox.wompi.co/v1/tokens/nequi' // Url Nequi prueba  TOKEN
 
-var urlCreateTransaction='http://sandbox.wompi.co/v1/transactions'  // Url card prueba  Transaccion
-var urlGetTransaction='http://sandbox.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
-var urlGetBackPSE='http://sandbox.wompi.co/v1/pse/financial_institutions' // Traer bancos
-var urlCreateTransactionPSE='http://sandbox.wompi.co/v1/payment_links' // Traer bancos
+var urlCreateTransaction='http://production.wompi.co/v1/transactions'  // Url card prueba  Transaccion
+var urlGetTransaction='http://production.wompi.co/v1/transactions/'  // Url card prueba  Transaccion
+var urlGetBackPSE='http://production.wompi.co/v1/pse/financial_institutions' // Traer bancos
+var urlCreateTransactionPSE='http://production.wompi.co/v1/payment_links' // Traer bancos
 
 
         
-var getTokenTest = 'pub_test_7uXzVs56KTCjOP7IYiz3WbkC8lWBEzX0' // Token de prueba 
+
 var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token de produccion   
         
 
@@ -27,43 +41,43 @@ var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token d
  
 class WalkToPayController{
 
-  public async createTransactionPSE(req: Request, res: Response){
-    //console.log(req.body)
+  public async createTransactionPSE(req: Request, res: Response){   
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': "Bearer " + getTokenTest
+      'Authorization': "Bearer " + getTokenProduction
     }
     try{          
       let payPSE={
         "payment_method_type": "PSE",
         "payment_method": {
           "type": "PSE",
-          "user_type": req.body.dataPSE.person_type, // Tipo de persona, natural (0) o jurídica (1)
-          "user_legal_id_type": req.body.dataPSE.document_typearg, // Tipo de documento, CC o NIT
-          "user_legal_id": req.body.dataPSE.document_number, // Número de documento
-          "financial_institution_code": req.body.dataPSE.back, // Código (`code`) de la institución financiera
+          "user_type": req.body.data.person_type, // Tipo de persona, natural (0) o jurídica (1)
+          "user_legal_id_type": req.body.data.document_typearg, // Tipo de documento, CC o NIT
+          "user_legal_id": req.body.data.document_number, // Número de documento
+          "financial_institution_code": req.body.data.back, // Código (`code`) de la institución financiera
           "payment_description": req.body.product.Resultados.titulo // Nombre de lo que se está pagando. Máximo 64 caracteres
         },
-        "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+        "amount_in_cents": parseInt(req.body.product.Resultados.precio+('00')),
         "currency": "COP",
         "name": req.body.product.Resultados.titulo,
-        "customer_email": req.body.dataPSE.email,
-        "reference": "saffsdfsasdfe4545", //req.body.product.Resultados.id_Producto.toString(),
+        "customer_email": req.body.data.email,
+        "reference": "44445555fasdf", //req.body.product.Resultados.id_Producto.toString(),
         "description": req.body.product.Resultados.descripcion,        
         "image_url": req.body.product.Resultados.imagenes_Producto[0],
         "redirect_url": "https://www.kiero.co/",
         "single_use": false,
         "collect_shipping": false                 
         }
-        sendEmail.sendMail(req.body)
+      
       var responseNequi = await axios.post(urlCreateTransaction, payPSE,{headers: headers})
       var responseEstatusTransactionPSE = await axios.get(urlGetTransaction+responseNequi.data.data.id,{headers: headers})
-      
+      inserWalkToPay.createTransactionPSE(responseNequi.data.data,payPSE,responseEstatusTransactionPSE.data.data.status);
+      sendEmail.sendMail(req.body,responseEstatusTransactionPSE)
       console.log("Compreto")
       res.json({ message: 'Complete'});
 
     }catch(err){
-        console.log("ERROR",err.response.data.error.messages.payment_method)
+        console.log("ERROR",err.response)
         res.json({ message: 'Error'});
     }  
   }
@@ -71,9 +85,10 @@ class WalkToPayController{
   // CREAR TRANSACCION POR NEQUI 
  
   public async createTransactionNequi(req: Request, res: Response){
+    
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': "Bearer " + getTokenTest
+      'Authorization': "Bearer " + getTokenProduction
     }
     try{          
       let tokenNequi={
@@ -85,64 +100,65 @@ class WalkToPayController{
       var responseNequiToken = await axios.post(urlNequi, tokenNequi,{
         headers: headers
       })
-      console.log(responseNequiToken)
-      
+      console.log(responseNequiToken)   
+      res.json({ message: 'Complete'});
 
     }catch(err){
-      console.log("Error",err.response.data.error)
-    }  
+      console.log("ERROR",err.response.data.error)
+      res.json({ message: 'Error'});
+    }
   }
  
   // Toma la tansaccion  
-  public async getBackPSEWompi(req: Request, res: Response){
+  public async PostBackPSEWompi(req: Request, res: Response){
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': "Bearer " + getTokenTest
+      'Authorization': "Bearer " + getTokenProduction
     }
-    try{          
-      var response = await axios.get(urlGetBackPSE,{
-          headers: headers
-      })
-      res.json(response.data.data)
-      console.log("Ok", response.data.data)
+    
+    try{
+      inserWalkToPay.updateTransaction(req.body);
+      res.json({status:200})
+      console.log("All GOOG",)
     }catch(err){
-        console.log("ERROR",err)
+        console.log("Any BAD",err)
     }    
    
   }  
   
-  public async getTransaction(req: Request, res: Response){
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer " + getTokenTest
-      }
-      try{          
-        var response = await axios.get(urlGetTransaction+'1703-1568727762-39101',{
-            headers: headers
-        })
-        
-        console.log("Ok", response.data.data)
-      }catch(err){
-          console.log("ERROR",err.response.data.error)
-      }
-      res.json({ message: 'Error'})
+  // Trae los Bancos
+  public async getBancks(req: Request, res: Response){
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': "Bearer " + getTokenProduction
+    }
+    try{          
+      var response = await axios.get(urlGetBackPSE,{
+        headers: headers
+      })
+      res.json(response.data.data)
+      console.log("Ok")
+    }catch(err){
+        console.log("ERROR",err)
+    } 
       
-   }  
+  }  
   
   // Create transaccion
   public async createTransactionBack(req: Request, res: Response):Promise<any>{
-    console.log('Data',req.body)
+    console.log('Data',req.body.data.numberCreditChange.toString())
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer " + getTokenTest
+        'Authorization': "Bearer " + getTokenProduction
     }
     try{
       let tokenCard={
-        "number": '4242424242424242', // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
-        "exp_month": req.body.dataCardCredit.month, // Mes de expiración (como string de 2 dígitos)
-        "exp_year": req.body.dataCardCredit.year.toString(), // Año de expiración (como string de 2 dígitos)
-        "cvc": req.body.dataCardCredit.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
-        "card_holder": req.body.dataCardCredit.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
+                   // '4111111111111111'
+        "number":   req.body.data.numberCreditChange.toString(), // Número de tarjeta (como un string, sin espacios) eje 4242424242424242
+        "exp_month": req.body.data.month, // Mes de expiración (como string de 2 dígitos)
+        "exp_year": req.body.data.year.toString(), // Año de expiración (como string de 2 dígitos)
+        "cvc": req.body.data.cvv, // Código de seguridad (como string de 3 o 4 dígitos)
+        "card_holder": req.body.data.name // Nombre del tarjeta habiente (string de mínimo 5 caracteres)          
       }                  
       var responseCardToken = await axios.post(urlCard, tokenCard,{
           headers: headers
@@ -151,16 +167,16 @@ class WalkToPayController{
         "payment_method_type": "CARD",
         "payment_method": {
           "type": "CARD",
-          "installments": req.body.dataCardCredit.quotas, // Número de cuotas
+          "installments": req.body.data.quotas, // Número de cuotas
           "token": responseCardToken.data.data.id // Token de la tarjeta de crédito
         },
         // Otros campos de la transacción a crear...
         
-        "amount_in_cents": parseInt(req.body.product.Resultados.precio),
+        "amount_in_cents": parseInt(req.body.product.Resultados.precio+('00')),
         "currency": "COP",
         "name": req.body.product.Resultados.titulo,
-        "customer_email": req.body.dataCardCredit.email,
-        "reference": req.body.product.Resultados.id_Producto.toString(),
+        "customer_email": req.body.data.email,
+        "reference": '454sf4544545565',//req.body.product.Resultados.id_Producto.toString(),
         "description": req.body.product.Resultados.descripcion,
         
         "image_url": req.body.product.Resultados.imagenes_Producto[0],
@@ -177,10 +193,11 @@ class WalkToPayController{
         })
         inserWalkToPay.createTransactionCard(responseCardToken.data.data,responseWompi.data.data,cartdata,responseEstatusTransactionCard.data.data.status);         
         console.log("Ok")
+        sendEmail.sendMail(req.body,responseEstatusTransactionCard)
         res.json({ message: 'Complete'});
 
     }catch(err){
-        console.log("ERROR",err.response.data.error)
+        console.log("ERRORfasdf",err.response.data.error)
         res.json({ message: 'Error'});
     }
     

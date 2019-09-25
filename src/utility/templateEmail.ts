@@ -1,5 +1,18 @@
 class Template{
-    public sendEmail(data:any){
+
+    public sendEmail(req:any,responseEstatusTransaction:any){
+        let stateMessage
+        switch (responseEstatusTransaction){
+            case 'APPROVED':
+                stateMessage = "Transacción Aprobada"
+                break;
+            case 'PENDING':
+                stateMessage = "Transacción Pendiente"
+                break;
+            case 'DECLINED':
+                stateMessage = "Transacción Invalida"
+                break;
+       }
         const template = `
         <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -14,7 +27,7 @@ class Template{
                 margin: auto;
                 text-align: center;
                 font-family: arial;
-                text-align: left;
+               
                 background-color: rgb(248, 245, 245);
             }
     
@@ -144,7 +157,7 @@ class Template{
                             style="width:70%">
                     </td>
                     <td>
-                        <h3 style="color:red">${data.stateMessage}</h3>
+                        <h3 style="color:red">${stateMessage}</h3>
                     </td>
                 </tr>
             </table>
@@ -153,7 +166,7 @@ class Template{
             <p class="title">Kiero International Group</p>
             <div class="chip">
                 <img width="300" height="300"
-                    src="https://images-na.ssl-images-amazon.com/images/I/51FCtby5MyL._SL1000_.jpg">
+                    src="${req.product.Resultados.imagenes_Producto[0]}">
             </div>
             <br>
             <br>
@@ -167,11 +180,46 @@ class Template{
     
         <div class="clcard">
             <div class="split"></div>
-            <p> <i class="large material-icons">face</i>${data.NombreUsuario}</p>
-            <p> <i class="large material-icons">local_phone</i>${data.Telefono}</p>
-            <p> <i class="large material-icons">credit_card</i>${data.Cedula}</p>
-            <p> <i class="large material-icons">pin_drop</i>${data.region}</p>
-            <p> <i class="large material-icons">home</i>${data.Direccion}${data.Direccion}${data.Direccion}</p>
+
+            <table style="text-align: center">
+                <tr>               
+                    <th><p style="color:red">Datos usuario</p></th>                    
+                </tr>
+                <tr>
+                    <td>
+                        
+                        <p> 🧑 ${req.data.name}</p>
+                        <p> 💳 ${req.data.document_number ? req.data.document_number : req.data.numberDoc}</p>
+                        <p> 📞 ${req.data.phone_number ? req.data.phone_number : ""}</p>
+                        <p> 💴 ${req.data.name_bank ? req.data.name_bank : req.data.paymentMethod}</p>
+                        <p> 📫 ${req.data.email}</p>                        
+                    </td>                    
+                </tr>
+                <div style="margin: 24px 0;">
+                    <a href="#" style="color:blue"><i class="fa fa-twitter"></i></a>
+                    <a href="#" style="color:blue"><i class="fa fa-facebook"></i></a>
+                </div>
+            </table>
+            <div class="split"></div>
+        </div>
+        
+        <div class="clcard">
+            <table style="text-align: center">
+                <tr>               
+                    <th><p style="color:red">Datos Producto</p></th>
+                </tr>
+                <tr>                
+                    <td>
+                        <p> 🧿 ${req.product.Resultados.titulo}</p>
+                        <p> $ ${req.product.Resultados.precio}</p>
+                        <p> 🧮 ${req.product.Resultados.color}</p>                        
+                    </td>
+                </tr>
+                <div style="margin: 24px 0;">
+                    <a href="#" style="color:blue"><i class="fa fa-twitter"></i></a>
+                    <a href="#" style="color:blue"><i class="fa fa-facebook"></i></a>
+                </div>
+            </table>
             <div class="split"></div>
         </div>
     </div>

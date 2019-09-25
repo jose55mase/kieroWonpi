@@ -26,10 +26,11 @@ class SendEmail {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
-    sendMail(req) {
+    sendMail(req, responseEstatusTransactionPSE) {
         return __awaiter(this, void 0, void 0, function* () {
-            //emails.push("jose es el nuevo")        
-            console.log(req);
+            let addressNoticationTrans = ['yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
+                'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co', 'diana.gutierrez@kiero.co'];
+            addressNoticationTrans.push(req.data.email);
             const transport = yield nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
@@ -39,12 +40,12 @@ class SendEmail {
             });
             const mailOptions = {
                 from: 'yuli.espitia2@kiero.co',
-                to: JSON.stringify("josemase55@gmail.com"),
+                to: JSON.stringify(addressNoticationTrans),
                 subject: 'Kiero | Vendiste un producto!',
-                html: templateEmail_1.default.sendEmail(req)
+                html: templateEmail_1.default.sendEmail(req, responseEstatusTransactionPSE)
             };
-            //const result = await transport.sendMail(mailOptions);
-            return console.log("ḧola jose");
+            const result = yield transport.sendMail(mailOptions);
+            return result;
         });
     }
 }

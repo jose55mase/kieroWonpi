@@ -12,12 +12,13 @@ class WalkToPay{
          this.config();
     }
     config():void{
-         this.router.get('/getTransaction',walkToPayController.getTransaction)
-         this.router.get('/getBackPSEWompi',walkToPayController.getBackPSEWompi)
+         this.router.get('/wompi/getListBanks',walkToPayController.getBancks)
+         
+         this.router.post('/wompi/stateBackEWompiTransaction',walkToPayController.PostBackPSEWompi) // Estado Transaccion
 
-         this.router.post('/createTransaction',walkToPayController.createTransactionBack)
-         this.router.post('/createTransactionNequi',walkToPayController.createTransactionNequi)
-         this.router.post('/createTransactionPSE',walkToPayController.createTransactionPSE)
+         this.router.post('/wompi/createTransaction',walkToPayController.createTransactionBack)
+         this.router.post('/wompi/createTransactionNequi',walkToPayController.createTransactionNequi)
+         this.router.post('/wompi/createTransactionPSE',walkToPayController.createTransactionPSE)
     }
 }
  

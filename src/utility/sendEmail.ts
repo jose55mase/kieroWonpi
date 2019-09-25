@@ -6,9 +6,13 @@ class SendEmail{
         
     }
 
-    public async sendMail(req:any[]){         
-        //emails.push("jose es el nuevo")        
-        console.log(req)
+    public async sendMail(req:any,responseEstatusTransactionPSE:any){  
+
+
+        let addressNoticationTrans = ['yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
+                                'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co','diana.gutierrez@kiero.co'];
+    
+        addressNoticationTrans.push(req.data.email)
         const transport = await nodemailer.createTransport({
             service:'gmail',
             auth: {
@@ -19,13 +23,13 @@ class SendEmail{
 
         const mailOptions = {
             from: 'yuli.espitia2@kiero.co',
-            to: JSON.stringify("josemase55@gmail.com"),
+            to: JSON.stringify(addressNoticationTrans),
             subject: 'Kiero | Vendiste un producto!',
-            html: template.sendEmail(req)
+            html: template.sendEmail(req,responseEstatusTransactionPSE)
         };
-        //const result = await transport.sendMail(mailOptions);
+        const result = await transport.sendMail(mailOptions);
                
-        return console.log("ḧola jose");
+        return result;
         
     }
 
