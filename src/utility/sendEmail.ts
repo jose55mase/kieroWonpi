@@ -6,12 +6,10 @@ class SendEmail{
         
     }
 
-    public async sendMail(req:any,responseEstatusTransactionPSE?:any){  
+    public async sendMail(req:any,responseEstatusTransactionPSE?:any){        
 
-        //'yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
-        //'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co','diana.gutierrez@kiero.co'
-
-        let addressNoticationTrans = [];
+        let addressNoticationTrans = [  'yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
+        'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co','diana.gutierrez@kiero.co'];
 
         addressNoticationTrans.push(req.data.email)
         const transport = await nodemailer.createTransport({
