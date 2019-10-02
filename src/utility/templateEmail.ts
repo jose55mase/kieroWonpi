@@ -1,8 +1,15 @@
 class Template{
 
     public sendEmail(req:any,responseEstatusTransaction:any){
-        let stateMessage
-        switch (responseEstatusTransaction){
+        
+        console.log('_____________________________________________')
+        for(var i in req.product.Resultados){
+            console.log(req.product.Resultados[i])
+        }
+        
+        console.log('_____________________________________________')
+        let stateMessage = ""
+        switch (responseEstatusTransaction.data.data.status){
             case 'APPROVED':
                 stateMessage = "Transacción Aprobada"
                 break;
@@ -212,7 +219,8 @@ class Template{
                     <td>
                         <p> 🧿 ${req.product.Resultados.titulo}</p>
                         <p> $ ${req.product.Resultados.precio}</p>
-                        <p> 🧮 ${req.product.Resultados.color}</p>                        
+                        <p> 🧮 ${req.product.Resultados.color}</p>
+                        <p> 🧮 ${req.product.Resultados.id_Producto}</p>                         
                     </td>
                 </tr>
                 <div style="margin: 24px 0;">

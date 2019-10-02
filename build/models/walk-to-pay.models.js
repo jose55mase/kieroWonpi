@@ -51,7 +51,6 @@ class InserWalkToPay {
     }
     createTransactionPSE(responseWompi, cartdata, responseEstatusTransactionCard) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(cartdata);
             const cardquery = `INSERT INTO wompy_pay_card (token_datacredir, reference_product, payment_method_type, id_reference, status, amount_in_cents, name,card_holder)
     VALUES (
       '${responseWompi.id}',

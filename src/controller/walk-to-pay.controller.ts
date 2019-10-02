@@ -41,7 +41,9 @@ var getTokenProduction = 'pub_prod_6SqAXiHbJoIQH2e9I85GgxA1Gmd9he20'  // Token d
  
 class WalkToPayController{
 
-  public async createTransactionPSE(req: Request, res: Response){   
+  public async createTransactionPSE(req: Request, res: Response){  
+    
+    var dataUser = req.body;
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': "Bearer " + getTokenProduction
@@ -61,23 +63,23 @@ class WalkToPayController{
         "currency": "COP",
         "name": req.body.product.Resultados.titulo,
         "customer_email": req.body.data.email,
-        "reference": "44445555fasdf", //req.body.product.Resultados.id_Producto.toString(),
+        "reference": "4444ff5555fasdf", //req.body.product.Resultados.id_Producto.toString(),
         "description": req.body.product.Resultados.descripcion,        
         "image_url": req.body.product.Resultados.imagenes_Producto[0],
         "redirect_url": "https://www.kiero.co/",
         "single_use": false,
         "collect_shipping": false                 
         }
-      
+      //sendEmail.sendMail(dataUser)
       var responseNequi = await axios.post(urlCreateTransaction, payPSE,{headers: headers})
       var responseEstatusTransactionPSE = await axios.get(urlGetTransaction+responseNequi.data.data.id,{headers: headers})
       inserWalkToPay.createTransactionPSE(responseNequi.data.data,payPSE,responseEstatusTransactionPSE.data.data.status);
       sendEmail.sendMail(req.body,responseEstatusTransactionPSE)
-      console.log("Compreto")
+      console.log("Completo")
       res.json({ message: 'Complete'});
 
     }catch(err){
-        console.log("ERROR",err.response)
+        console.log("ERROR")
         res.json({ message: 'Error'});
     }  
   }
