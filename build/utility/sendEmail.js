@@ -28,10 +28,9 @@ class SendEmail {
     }
     sendMail(req, responseEstatusTransactionPSE) {
         return __awaiter(this, void 0, void 0, function* () {
-            //'yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
-            //'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co','diana.gutierrez@kiero.co'
-            let addressNoticationTrans = [];
-            addressNoticationTrans.push(req.data.email);
+            let addressNoticationTrans = ['yulies1990@gmail.com', 'gloria.castaneda@kiero.co',
+                'gustavo.baez@kiero.co', 'jose.mz@kiero.co', 'jose.marin@kiero.co', 'diana.gutierrez@kiero.co'];
+            //addressNoticationTrans.push(req.data.email)
             const transport = yield nodemailer.createTransport({
                 service: 'gmail',
                 auth: {

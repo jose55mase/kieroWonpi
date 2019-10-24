@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const walk_to_pay_controller_1 = __importDefault(require("../controller/walk-to-pay.controller"));
+const user_login_controller_1 = __importDefault(require("../controller/user-login.controller"));
 //import {  } from './templates'
 class WalkToPay {
     constructor() {
@@ -12,11 +12,7 @@ class WalkToPay {
         this.config();
     }
     config() {
-        this.router.get('/wompi/getListBanks', walk_to_pay_controller_1.default.getBancks);
-        this.router.post('/wompi/stateBackEWompiTransaction', walk_to_pay_controller_1.default.PostBackPSEWompi); // Estado Transaccion
-        this.router.post('/wompi/createTransaction', walk_to_pay_controller_1.default.createTransactionBack);
-        this.router.post('/wompi/createTransactionNequi', walk_to_pay_controller_1.default.createTransactionNequi);
-        this.router.post('/wompi/createTransactionPSE', walk_to_pay_controller_1.default.createTransactionPSE);
+        this.router.get('/login/getUser', user_login_controller_1.default.getUser);
     }
 }
 exports.default = new WalkToPay().router;

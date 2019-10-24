@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const walk_to_pay_router_1 = __importDefault(require("./router/walk-to-pay.router"));
+const user_loging_router_1 = __importDefault(require("./router/user-loging.router"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 class Server {
@@ -21,7 +21,7 @@ class Server {
         this.app.use(express_1.default.urlencoded({ extended: false }));
     }
     router() {
-        this.app.use(walk_to_pay_router_1.default);
+        this.app.use(user_loging_router_1.default);
     }
     start() {
         this.app.listen(this.app.get('port'), () => {

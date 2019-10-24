@@ -1,5 +1,5 @@
 import express, {Application} from 'express';
-import WalkToPay from './router/walk-to-pay.router';
+import UserRoutes from './router/user-loging.router';
 import morgan from 'morgan';
 import cors from 'cors';
 
@@ -25,7 +25,7 @@ class Server{
    }
  
    router():void{
-       this.app.use(WalkToPay);       
+       this.app.use(UserRoutes);       
    }
  
    start():void{

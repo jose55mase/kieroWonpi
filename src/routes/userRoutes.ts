@@ -1,5 +1,5 @@
 import { Router } from 'express'
 
-class WalkToPay{
+class UserRouters{
      router:Router = Router();
 }

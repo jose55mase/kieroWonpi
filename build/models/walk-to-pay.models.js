@@ -23,71 +23,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sql = __importStar(require("mssql"));
 const database_1 = __importDefault(require("../database"));
 class InserWalkToPay {
-    createTransactionCard(responseCardToken, responseWompi, cartdata, responseEstatusTransactionCard) {
+    selectUsers(res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const cardquery = `INSERT INTO wompy_pay_card (token_datacredir, reference_product, payment_method_type, id_reference, status, amount_in_cents, name,card_holder)
-    VALUES (
-      '${responseWompi.id}',
-      '${responseWompi.reference}',
-      '${responseWompi.payment_method_type}',
-      '${responseWompi.reference}',
-      '${responseEstatusTransactionCard}',
-      '${responseWompi.amount_in_cents}',
-      '${cartdata.name}',
-      '${cartdata.numberDoc}'
-      );`;
+            const listUser = 'SELECT * FROM users';
             try {
                 database_1.default.connect().then(() => {
                     const request = new sql.Request(database_1.default);
-                    const result = request.query(cardquery);
-                    console.dir(result);
+                    const result = request.query(listUser);
+                    console.log(result);
                 });
-                console.log("Insercion completa.");
             }
-            catch (error) {
-                console.log("error", error);
-            }
-        });
-    }
-    createTransactionPSE(responseWompi, cartdata, responseEstatusTransactionCard) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const cardquery = `INSERT INTO wompy_pay_card (token_datacredir, reference_product, payment_method_type, id_reference, status, amount_in_cents, name,card_holder)
-    VALUES (
-      '${responseWompi.id}',
-      '${responseWompi.reference}',
-      '${responseWompi.payment_method_type}',
-      '${responseWompi.reference}',
-      '${responseEstatusTransactionCard}',
-      '${responseWompi.amount_in_cents}',
-      '${cartdata.name}',
-      '${cartdata.payment_method.user_legal_id}'
-      );`;
-            try {
-                database_1.default.connect().then(() => {
-                    const request = new sql.Request(database_1.default);
-                    const result = request.query(cardquery);
-                    console.dir(result);
-                });
-                console.log("Insercion completa.");
-            }
-            catch (error) {
-                console.log("error", error);
-            }
-        });
-    }
-    updateTransaction(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const query = `UPDATE wompy_pay_card SET status = '${req.data.transaction.status}' WHERE token_datacredir = '${req.data.transaction.id}'`;
-            try {
-                database_1.default.connect().then(() => {
-                    const request = new sql.Request(database_1.default);
-                    const result = request.query(query);
-                    console.dir(result);
-                });
-                console.log(" transaction.updated complete.");
-            }
-            catch (error) {
-                console.log("error", error);
+            catch (err) {
+                console.log("error");
             }
         });
     }
